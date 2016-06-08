@@ -2,7 +2,20 @@
 #include "Arduino.h"
 #include "HelperFunctions.h"
 
-PID::PID(float _Kp, float _Ki, float _Kd) {
+PID::PID(float* _Input, float* _Output, float* _Setpoint,
+        float _Kp, float _Ki, float _Kd, float _SampleTime,
+        float _maxOutput, float _minOutput) {
+
+  Input = _Input;
+  Output = _Output;
+  Setpoint = _Setpoint;
+
+  maxOutput = _maxOutput;
+  minOutput = _minOutput;
+
+  SampleTime = _SampleTime;
+  SampleTimeInSec = SampleTime / 1000;
+
   Kp = _Kp;
   Ki = _Ki;
   Kd = _Kd;
@@ -13,26 +26,51 @@ PID::PID(float _Kp, float _Ki, float _Kd) {
   prevError = error;
 }
 
-int PID::calcOutput(float setpoint, float currentVal){
-
-  //Calc Error
-  error = setpoint - currentVal;
-
-  //Integral Calculation
-  integral = integral + error;
-  integral = FitToBounds(integral, 999999999, 0); // TODO: Adjust
-
-  //Derivative Calc
-  // TODO: Adjust derivative clac time, set to 2HZ
+bool PID::Compute(float setpoint, float currentVal){
+// Return if computed, false otherwise
   time = millis();
-  if (time - prevTime >= 500) {
-    derivative = (error - prevError) / (time - prevTime);
-    derivative = (float)derivative;
-    derivative = FitToBounds(derivative, 999999999, 0); // TODO: Adjust
+  if (time - prevTime >= SampleTime) {
+
+    error = *Setpoint - *Input;
+
+    integral += error * SampleTimeInSec;
+
+    derivative = (error - prevError) / SampleTimeInSec;
+
+    integral = FitToBounds(integral, maxIntegral, minIntegral); //TODO: Adjust
+    derivative = FitToBounds(derivative, maxDerivative, minDerivative); //TODO: Adjust
+
+    *Output = Kp * error + Ki * integral + Kd * derivative;
+    *Output = FitToBounds(*output, maxOutput, minOutput);
+
+    prevTime = millis();
+    prevError = error;
+
+    return true;
+
   }
+  else
+    return false;
+}
 
-  output = Kp * error + Ki * integral + Kd * derivative;
+void PID::SetBuildUpLimits(float _maxIntegral, float _minIntegral,
+                            float _maxDerivative, float _minDerivative){
 
-  return output;
+  maxIntegral = _maxIntegral;
+  minIntegral = _minIntegral;
 
+  maxDerivative = _maxDerivative;
+  minDerivative = _minDerivative;
+}
+
+float PID::GetKp() {
+  return Kp;
+}
+
+float PID::GetKi() {
+  return Ki;
+}
+
+float PID::GetKd() {
+  return Kd;
 }

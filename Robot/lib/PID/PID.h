@@ -4,19 +4,42 @@
 class PID
 {
 public:
-  PID(float _Kp, float _Ki, float _Kd);
-  int calcOutput(float setpoint, float currentVal);
+  PID(float* _Input, float* _Output, float* _Setpoint,
+          float _Kp, float _Ki, float _Kd, float _SampleTime,
+          float _maxOutput, float _minOutput);
 
+  bool Compute(float setpoint, float currentVal);
+
+  float GetKp();
+  float GetKi();
+  float GetKd();
+
+  void SetBuildUpLimits(float _maxIntegral, float _minIntegral,
+                        float _maxDerivative, float _minDerivative);
 
 private:
+  //PID Constants
   float Kp, Ki, Kd;
-  int output;
+  //Pointers to Input values
+  float *Output, *Input, *Setpoint;
+
+  //values to be calculated
   float integral;
   float derivative;
-
+  //Error
   float error;
   float prevError;
-
+  //Sample Time
+  float SampleTime;
+  float SampleTimeInSec;
+  //Variable limits
+  float maxOutput;
+  float minOutput;
+  float maxIntegral;
+  float minIntegral;
+  float maxDerivative;
+  float minDerivative;
+  //Time variables
   unsigned long prevTime;
   unsigned long time;
 };
