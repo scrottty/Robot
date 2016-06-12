@@ -1,7 +1,7 @@
 #ifndef _HelperFunctions_h_
-#define  _HelperFunction_h_
+#define  _HelperFunctions_h_
 
-float FitToBounds(float value, float upperBound, float lowerBound)
+inline float FitToBounds(float value, float upperBound, float lowerBound)
 {
   if (value > upperBound)
     value = upperBound;

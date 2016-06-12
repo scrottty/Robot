@@ -1,11 +1,11 @@
 #include "PID.h"
 #include "Arduino.h"
-#include "HelperFunctions.h"
 
-PID::PID(float* _Input, float* _Output, float* _Setpoint,
-        float _Kp, float _Ki, float _Kd, float _SampleTime,
-        float _maxOutput, float _minOutput) {
+PID::PID() {}
 
+void PID::SetUp(float *_Input, float *_Output, float *_Setpoint,
+                float _Kp, float _Ki, float _Kd, float _SampleTime,
+                float _maxOutput, float _minOutput) {
   Input = _Input;
   Output = _Output;
   Setpoint = _Setpoint;
@@ -24,9 +24,10 @@ PID::PID(float* _Input, float* _Output, float* _Setpoint,
   prevTime = millis();
   error = 0;
   prevError = error;
+
 }
 
-bool PID::Compute(float setpoint, float currentVal){
+bool PID::Compute(){
 // Return if computed, false otherwise
   time = millis();
   if (time - prevTime >= SampleTime) {
@@ -41,7 +42,7 @@ bool PID::Compute(float setpoint, float currentVal){
     derivative = FitToBounds(derivative, maxDerivative, minDerivative); //TODO: Adjust
 
     *Output = Kp * error + Ki * integral + Kd * derivative;
-    *Output = FitToBounds(*output, maxOutput, minOutput);
+    *Output = FitToBounds(*Output, maxOutput, minOutput);
 
     prevTime = millis();
     prevError = error;

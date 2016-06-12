@@ -1,14 +1,18 @@
 #ifndef _PID_h_Incl_
 #define  _PID_h_Incl_
 
+#include "HelperFunctions.h"
+
 class PID
 {
 public:
-  PID(float* _Input, float* _Output, float* _Setpoint,
-          float _Kp, float _Ki, float _Kd, float _SampleTime,
-          float _maxOutput, float _minOutput);
+  PID();
 
-  bool Compute(float setpoint, float currentVal);
+  void SetUp(float* _Input, float* _Output, float* _Setpoint,
+    float _Kp, float _Ki, float _Kd, float _SampleTime,
+    float _maxOutput, float _minOutput);
+
+  bool Compute();
 
   float GetKp();
   float GetKi();
